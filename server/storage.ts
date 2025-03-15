@@ -1,17 +1,20 @@
 import { 
-  users, type User, type InsertUser,
+  users, type User, type InsertUser, type ExtendedInsertUser,
   services, type Service, type InsertService,
   bookings, type Booking, type InsertBooking,
   reviews, type Review, type InsertReview,
   teamMembers, type TeamMember, type InsertTeamMember,
-  contactMessages, type ContactMessage, type InsertContactMessage
+  contactMessages, type ContactMessage, type InsertContactMessage,
+  serviceProviders, type ServiceProvider, type InsertServiceProvider
 } from "@shared/schema";
 
 export interface IStorage {
   // User methods
   getUser(id: number): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
+  getUserByEmail(email: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
+  getUsersByType(userType: string): Promise<User[]>;
 
   // Service methods
   getServices(): Promise<Service[]>;
@@ -24,6 +27,8 @@ export interface IStorage {
   // Booking methods
   getBookings(): Promise<Booking[]>;
   getBookingById(id: number): Promise<Booking | undefined>;
+  getBookingsByClientId(userId: number): Promise<Booking[]>;
+  getBookingsByProviderId(providerId: number): Promise<Booking[]>;
   createBooking(booking: InsertBooking): Promise<Booking>;
 
   // Review methods
@@ -37,6 +42,14 @@ export interface IStorage {
   getTeamMemberById(id: number): Promise<TeamMember | undefined>;
   createTeamMember(teamMember: InsertTeamMember): Promise<TeamMember>;
 
+  // Service Provider methods
+  getServiceProviders(): Promise<ServiceProvider[]>;
+  getServiceProviderById(id: number): Promise<ServiceProvider | undefined>;
+  getServiceProviderByUserId(userId: number): Promise<ServiceProvider | undefined>;
+  getServiceProvidersByCategory(category: string): Promise<ServiceProvider[]>;
+  createServiceProvider(provider: InsertServiceProvider, userId: number): Promise<ServiceProvider>;
+  updateServiceProvider(id: number, provider: Partial<ServiceProvider>): Promise<ServiceProvider | undefined>;
+
   // Contact Message methods
   createContactMessage(message: InsertContactMessage): Promise<ContactMessage>;
 }
@@ -48,6 +61,7 @@ export class MemStorage implements IStorage {
   private reviews: Map<number, Review>;
   private teamMembers: Map<number, TeamMember>;
   private contactMessages: Map<number, ContactMessage>;
+  private serviceProviders: Map<number, ServiceProvider>;
 
   private currentUserId: number;
   private currentServiceId: number;
@@ -55,6 +69,7 @@ export class MemStorage implements IStorage {
   private currentReviewId: number;
   private currentTeamMemberId: number;
   private currentContactMessageId: number;
+  private currentServiceProviderId: number;
 
   constructor() {
     this.users = new Map();
@@ -63,6 +78,7 @@ export class MemStorage implements IStorage {
     this.reviews = new Map();
     this.teamMembers = new Map();
     this.contactMessages = new Map();
+    this.serviceProviders = new Map();
 
     this.currentUserId = 1;
     this.currentServiceId = 1;
@@ -70,6 +86,7 @@ export class MemStorage implements IStorage {
     this.currentReviewId = 1;
     this.currentTeamMemberId = 1;
     this.currentContactMessageId = 1;
+    this.currentServiceProviderId = 1;
 
     // Initialize with sample data
     this.initSampleData();

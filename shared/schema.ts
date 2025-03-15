@@ -7,11 +7,32 @@ export const users = pgTable("users", {
   id: serial("id").primaryKey(),
   username: text("username").notNull().unique(),
   password: text("password").notNull(),
+  email: text("email").notNull(),
+  userType: text("user_type").notNull(), // "client" or "provider"
+  firstName: text("first_name").notNull(),
+  lastName: text("last_name").notNull(),
+  phone: text("phone"),
+  profileImageUrl: text("profile_image_url"),
+  createdAt: timestamp("created_at").defaultNow(),
 });
 
-export const insertUserSchema = createInsertSchema(users).pick({
-  username: true,
-  password: true,
+export const insertUserSchema = createInsertSchema(users).omit({
+  id: true,
+  createdAt: true,
+  profileImageUrl: true,
+});
+
+// Extended user schema with validation
+export const extendedInsertUserSchema = insertUserSchema.extend({
+  email: z.string().email("Please enter a valid email address"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+  userType: z.enum(["client", "provider"], {
+    errorMap: () => ({ message: "Please select a valid user type" }),
+  }),
+  confirmPassword: z.string().min(6, "Password must be at least 6 characters"),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords do not match",
+  path: ["confirmPassword"],
 });
 
 // Services Table
@@ -83,6 +104,41 @@ export const insertTeamMemberSchema = createInsertSchema(teamMembers).omit({
   id: true
 });
 
+// Service Provider Profiles Table
+export const serviceProviders = pgTable("service_providers", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  bio: text("bio").notNull(),
+  experienceYears: integer("experience_years").notNull(),
+  hourlyRate: text("hourly_rate").notNull(),
+  skills: text("skills").array(),
+  serviceCategories: text("service_categories").array(),
+  availability: text("availability").notNull(), // JSON string with availability schedule
+  certifications: text("certifications").array(),
+  portfolioImages: text("portfolio_images").array(),
+  address: text("address"),
+  city: text("city").notNull(),
+  state: text("state").notNull(),
+  zipCode: text("zip_code"),
+  isVerified: boolean("is_verified").default(false),
+  rating: varchar("rating", { length: 3 }).default("0.0"),
+  totalJobs: integer("total_jobs").default(0),
+  totalReviews: integer("total_reviews").default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertServiceProviderSchema = createInsertSchema(serviceProviders).omit({
+  id: true,
+  userId: true,
+  isVerified: true,
+  rating: true,
+  totalJobs: true,
+  totalReviews: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 // Contact Messages Table
 export const contactMessages = pgTable("contact_messages", {
   id: serial("id").primaryKey(),
@@ -103,6 +159,7 @@ export const insertContactMessageSchema = createInsertSchema(contactMessages).om
 // Type Exports
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
+export type ExtendedInsertUser = z.infer<typeof extendedInsertUserSchema>;
 
 export type Service = typeof services.$inferSelect;
 export type InsertService = z.infer<typeof insertServiceSchema>;
@@ -115,6 +172,9 @@ export type InsertReview = z.infer<typeof insertReviewSchema>;
 
 export type TeamMember = typeof teamMembers.$inferSelect;
 export type InsertTeamMember = z.infer<typeof insertTeamMemberSchema>;
+
+export type ServiceProvider = typeof serviceProviders.$inferSelect;
+export type InsertServiceProvider = z.infer<typeof insertServiceProviderSchema>;
 
 export type ContactMessage = typeof contactMessages.$inferSelect;
 export type InsertContactMessage = z.infer<typeof insertContactMessageSchema>;
