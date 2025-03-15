@@ -392,7 +392,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   // Update service provider profile
-  app.patch(`${apiPrefix}/providers/profile`, isAuthenticated, checkUserType("provider"), express.json(), async (req, res) => {
+  app.patch(`${apiPrefix}/providers/profile`, isAuthenticated, checkUserType("provider"), async (req, res) => {
     try {
       const userId = req.session.userId!;
       
