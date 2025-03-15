@@ -1,18 +1,68 @@
-import type { Express, Request, Response } from "express";
+import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { 
   insertServiceSchema, 
   insertBookingSchema, 
   insertReviewSchema, 
-  insertContactMessageSchema 
+  insertContactMessageSchema,
+  insertUserSchema,
+  extendedInsertUserSchema,
+  insertServiceProviderSchema
 } from "@shared/schema";
 import { ZodError } from "zod";
 import { fromZodError } from "zod-validation-error";
+import bcrypt from "bcryptjs";
+import session from "express-session";
+import MemoryStore from "memorystore";
+
+// Define a session type for TypeScript
+declare module "express-session" {
+  interface SessionData {
+    userId?: number;
+    userType?: string;
+    username?: string;
+  }
+}
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // API prefix
   const apiPrefix = "/api";
+  
+  // Set up session middleware
+  const MemorySessionStore = MemoryStore(session);
+  app.use(
+    session({
+      cookie: { 
+        maxAge: 24 * 60 * 60 * 1000, // 24 hours
+        secure: process.env.NODE_ENV === "production"
+      },
+      store: new MemorySessionStore({
+        checkPeriod: 86400000 // Prune expired entries every 24h
+      }),
+      secret: process.env.SESSION_SECRET || "handyfix-secret-key",
+      resave: false,
+      saveUninitialized: false
+    })
+  );
+  
+  // Middleware to check if user is authenticated
+  const isAuthenticated = (req: Request, res: Response, next: NextFunction) => {
+    if (req.session.userId) {
+      return next();
+    }
+    return res.status(401).json({ error: "Unauthorized. Please log in." });
+  };
+
+  // Middleware to check if user is a specific type
+  const checkUserType = (type: string) => {
+    return (req: Request, res: Response, next: NextFunction) => {
+      if (req.session.userType === type) {
+        return next();
+      }
+      return res.status(403).json({ error: "Access denied" });
+    };
+  };
 
   // Error handler middleware
   const handleZodError = (err: unknown, res: Response) => {

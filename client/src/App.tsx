@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Switch, Route } from "wouter";
+import { Switch, Route, useLocation } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -15,6 +15,7 @@ import BookingPage from "@/pages/BookingPage";
 import Reviews from "@/pages/Reviews";
 import About from "@/pages/About";
 import Contact from "@/pages/Contact";
+import Auth from "@/pages/Auth";
 
 // Components
 import Header from "@/components/Header";
@@ -22,15 +23,20 @@ import Footer from "@/components/Footer";
 import FloatingWhatsApp from "@/components/FloatingWhatsApp";
 
 function Router() {
+  const [location] = useLocation();
+  
   // Scroll to top on route change
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, []);
+  }, [location]);
+  
+  // Determine if we should show the header and footer
+  const isAuthPage = location === "/login" || location === "/register";
   
   return (
     <div className="flex flex-col min-h-screen">
-      <Header />
-      <main className="flex-grow">
+      {!isAuthPage && <Header />}
+      <main className={`flex-grow ${isAuthPage ? 'pt-0' : ''}`}>
         <Switch>
           <Route path="/" component={Home} />
           <Route path="/services" component={Services} />
@@ -38,10 +44,12 @@ function Router() {
           <Route path="/reviews" component={Reviews} />
           <Route path="/about" component={About} />
           <Route path="/contact" component={Contact} />
+          <Route path="/login" component={Auth} />
+          <Route path="/register" component={Auth} />
           <Route component={NotFound} />
         </Switch>
       </main>
-      <Footer />
+      {!isAuthPage && <Footer />}
       <FloatingWhatsApp phoneNumber="08100104987" />
     </div>
   );

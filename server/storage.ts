@@ -103,9 +103,31 @@ export class MemStorage implements IStorage {
     );
   }
 
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    return Array.from(this.users.values()).find(
+      (user) => user.email === email,
+    );
+  }
+
+  async getUsersByType(userType: string): Promise<User[]> {
+    return Array.from(this.users.values()).filter(
+      (user) => user.userType === userType,
+    );
+  }
+
   async createUser(insertUser: InsertUser): Promise<User> {
     const id = this.currentUserId++;
-    const user: User = { ...insertUser, id };
+    const createdAt = new Date();
+    const profileImageUrl = null;
+    
+    const user: User = { 
+      ...insertUser, 
+      id, 
+      createdAt, 
+      profileImageUrl,
+      phone: insertUser.phone || null
+    };
+    
     this.users.set(id, user);
     return user;
   }
@@ -139,7 +161,13 @@ export class MemStorage implements IStorage {
 
   async createService(insertService: InsertService): Promise<Service> {
     const id = this.currentServiceId++;
-    const service: Service = { ...insertService, id };
+    const service: Service = { 
+      ...insertService, 
+      id,
+      imageUrl: insertService.imageUrl || null,
+      isPopular: insertService.isPopular || null,
+      isNew: insertService.isNew || null
+    };
     this.services.set(id, service);
     return service;
   }
@@ -152,11 +180,29 @@ export class MemStorage implements IStorage {
   async getBookingById(id: number): Promise<Booking | undefined> {
     return this.bookings.get(id);
   }
+  
+  async getBookingsByClientId(userId: number): Promise<Booking[]> {
+    // In a real system, this would filter by the user ID of the client
+    // For now, just return a sample of bookings
+    return Array.from(this.bookings.values()).slice(0, 3);
+  }
+  
+  async getBookingsByProviderId(providerId: number): Promise<Booking[]> {
+    // In a real system, this would filter by provider ID
+    // For now, just return a sample of bookings
+    return Array.from(this.bookings.values()).slice(0, 3);
+  }
 
   async createBooking(insertBooking: InsertBooking): Promise<Booking> {
     const id = this.currentBookingId++;
     const createdAt = new Date();
-    const booking: Booking = { ...insertBooking, id, createdAt };
+    const booking: Booking = { 
+      ...insertBooking, 
+      id, 
+      createdAt,
+      description: insertBooking.description || null,
+      specificService: insertBooking.specificService || null
+    };
     this.bookings.set(id, booking);
     return booking;
   }
@@ -179,7 +225,12 @@ export class MemStorage implements IStorage {
   async createReview(insertReview: InsertReview): Promise<Review> {
     const id = this.currentReviewId++;
     const date = new Date();
-    const review: Review = { ...insertReview, id, date };
+    const review: Review = { 
+      ...insertReview, 
+      id, 
+      date,
+      avatarUrl: insertReview.avatarUrl || null
+    };
     this.reviews.set(id, review);
     return review;
   }
@@ -195,7 +246,12 @@ export class MemStorage implements IStorage {
 
   async createTeamMember(insertTeamMember: InsertTeamMember): Promise<TeamMember> {
     const id = this.currentTeamMemberId++;
-    const teamMember: TeamMember = { ...insertTeamMember, id };
+    const teamMember: TeamMember = { 
+      ...insertTeamMember, 
+      id,
+      imageUrl: insertTeamMember.imageUrl || null,
+      skills: insertTeamMember.skills || null
+    };
     this.teamMembers.set(id, teamMember);
     return teamMember;
   }
@@ -204,9 +260,70 @@ export class MemStorage implements IStorage {
   async createContactMessage(insertMessage: InsertContactMessage): Promise<ContactMessage> {
     const id = this.currentContactMessageId++;
     const createdAt = new Date();
-    const message: ContactMessage = { ...insertMessage, id, createdAt };
+    const message: ContactMessage = { 
+      ...insertMessage, 
+      id, 
+      createdAt,
+      serviceInterest: insertMessage.serviceInterest || null
+    };
     this.contactMessages.set(id, message);
     return message;
+  }
+  
+  // Service Provider methods
+  async getServiceProviders(): Promise<ServiceProvider[]> {
+    return Array.from(this.serviceProviders.values());
+  }
+  
+  async getServiceProviderById(id: number): Promise<ServiceProvider | undefined> {
+    return this.serviceProviders.get(id);
+  }
+  
+  async getServiceProviderByUserId(userId: number): Promise<ServiceProvider | undefined> {
+    return Array.from(this.serviceProviders.values()).find(
+      (provider) => provider.userId === userId
+    );
+  }
+  
+  async getServiceProvidersByCategory(category: string): Promise<ServiceProvider[]> {
+    return Array.from(this.serviceProviders.values()).filter(
+      (provider) => provider.categories.includes(category)
+    );
+  }
+  
+  async createServiceProvider(provider: InsertServiceProvider, userId: number): Promise<ServiceProvider> {
+    const id = this.currentServiceProviderId++;
+    
+    const serviceProvider: ServiceProvider = {
+      ...provider,
+      id,
+      userId,
+      imageUrl: provider.imageUrl || null,
+      bio: provider.bio || null,
+      availability: provider.availability || null,
+      rating: provider.rating || null,
+      location: provider.location || null,
+      joinDate: new Date()
+    };
+    
+    this.serviceProviders.set(id, serviceProvider);
+    return serviceProvider;
+  }
+  
+  async updateServiceProvider(id: number, provider: Partial<ServiceProvider>): Promise<ServiceProvider | undefined> {
+    const existingProvider = this.serviceProviders.get(id);
+    
+    if (!existingProvider) {
+      return undefined;
+    }
+    
+    const updatedProvider: ServiceProvider = {
+      ...existingProvider,
+      ...provider
+    };
+    
+    this.serviceProviders.set(id, updatedProvider);
+    return updatedProvider;
   }
 
   // Initialize with sample data
