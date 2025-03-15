@@ -35,7 +35,103 @@ const Home = () => {
       {/* Hero Section */}
       <HeroSection />
 
-      {/* Services Section */}
+      {/* Service Categories Section */}
+      <section id="service-categories" className="py-16 md:py-20 bg-gray-50">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-heading font-bold text-dark mb-4">
+              Our Service Categories
+            </h2>
+            <p className="text-gray-600 max-w-2xl mx-auto">
+              We specialize in a wide range of professional handyman services to solve all your home repair needs
+            </p>
+          </div>
+
+          {/* Categories Grid */}
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 md:gap-6">
+            {/* Plumbing */}
+            <Link href="/services#plumbing" className="group">
+              <div className="bg-white rounded-lg shadow-md p-6 text-center hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 border border-gray-100 h-full flex flex-col items-center justify-center">
+                <div className="w-16 h-16 bg-primary-light/20 rounded-full flex items-center justify-center mb-4 group-hover:bg-primary-light/40 transition-colors duration-300">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
+                </div>
+                <h3 className="font-heading font-semibold mb-2">Plumbing</h3>
+                <p className="text-sm text-gray-500">Leak repairs, installations & more</p>
+              </div>
+            </Link>
+
+            {/* Electrical */}
+            <Link href="/services#electrical" className="group">
+              <div className="bg-white rounded-lg shadow-md p-6 text-center hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 border border-gray-100 h-full flex flex-col items-center justify-center">
+                <div className="w-16 h-16 bg-primary-light/20 rounded-full flex items-center justify-center mb-4 group-hover:bg-primary-light/40 transition-colors duration-300">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
+                </div>
+                <h3 className="font-heading font-semibold mb-2">Electrical</h3>
+                <p className="text-sm text-gray-500">Outlets, lighting & panel repairs</p>
+              </div>
+            </Link>
+
+            {/* Carpentry */}
+            <Link href="/services#carpentry" className="group">
+              <div className="bg-white rounded-lg shadow-md p-6 text-center hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 border border-gray-100 h-full flex flex-col items-center justify-center">
+                <div className="w-16 h-16 bg-primary-light/20 rounded-full flex items-center justify-center mb-4 group-hover:bg-primary-light/40 transition-colors duration-300">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                  </svg>
+                </div>
+                <h3 className="font-heading font-semibold mb-2">Carpentry</h3>
+                <p className="text-sm text-gray-500">Furniture, cabinets & woodwork</p>
+              </div>
+            </Link>
+
+            {/* Painting */}
+            <Link href="/services#painting" className="group">
+              <div className="bg-white rounded-lg shadow-md p-6 text-center hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 border border-gray-100 h-full flex flex-col items-center justify-center">
+                <div className="w-16 h-16 bg-primary-light/20 rounded-full flex items-center justify-center mb-4 group-hover:bg-primary-light/40 transition-colors duration-300">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
+                  </svg>
+                </div>
+                <h3 className="font-heading font-semibold mb-2">Painting</h3>
+                <p className="text-sm text-gray-500">Interior & exterior painting</p>
+              </div>
+            </Link>
+
+            {/* Flooring */}
+            <Link href="/services#flooring" className="group">
+              <div className="bg-white rounded-lg shadow-md p-6 text-center hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 border border-gray-100 h-full flex flex-col items-center justify-center">
+                <div className="w-16 h-16 bg-primary-light/20 rounded-full flex items-center justify-center mb-4 group-hover:bg-primary-light/40 transition-colors duration-300">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
+                  </svg>
+                </div>
+                <h3 className="font-heading font-semibold mb-2">Flooring</h3>
+                <p className="text-sm text-gray-500">Tile, hardwood & laminate</p>
+              </div>
+            </Link>
+
+            {/* Maintenance */}
+            <Link href="/services#maintenance" className="group">
+              <div className="bg-white rounded-lg shadow-md p-6 text-center hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 border border-gray-100 h-full flex flex-col items-center justify-center">
+                <div className="w-16 h-16 bg-primary-light/20 rounded-full flex items-center justify-center mb-4 group-hover:bg-primary-light/40 transition-colors duration-300">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                </div>
+                <h3 className="font-heading font-semibold mb-2">Maintenance</h3>
+                <p className="text-sm text-gray-500">Regular home maintenance</p>
+              </div>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Featured Services Section */}
       <section id="services" className="py-16 md:py-24 bg-white">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
