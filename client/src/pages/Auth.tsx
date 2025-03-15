@@ -109,10 +109,19 @@ const Auth = () => {
   const onLoginSubmit = async (data: LoginFormValues) => {
     setIsSubmitting(true);
     try {
-      const response = await apiRequest('/api/auth/login', {
+      const response = await fetch('/api/auth/login', {
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify(data),
       });
+      
+      if (!response.ok) {
+        throw new Error(await response.text());
+      }
+      
+      const userData = await response.json();
       
       toast({
         title: "Login successful!",
@@ -120,7 +129,7 @@ const Auth = () => {
       });
       
       // Redirect based on user type
-      const userType = response.userType;
+      const userType = userData.userType;
       if (userType === "client") {
         setLocation("/");
       } else if (userType === "provider") {
@@ -153,10 +162,18 @@ const Auth = () => {
         userType: data.userType,
       };
 
-      await apiRequest('/api/auth/register', {
+      const response = await fetch('/api/auth/register', {
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify(userData),
       });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Registration failed');
+      }
       
       toast({
         title: "Registration successful!",

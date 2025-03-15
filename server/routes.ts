@@ -1,4 +1,4 @@
-import type { Express, Request, Response, NextFunction } from "express";
+import express, { type Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { 
@@ -28,6 +28,9 @@ declare module "express-session" {
 export async function registerRoutes(app: Express): Promise<Server> {
   // API prefix
   const apiPrefix = "/api";
+  
+  // Apply middleware
+  app.use(express.json());
   
   // Set up session middleware
   const MemorySessionStore = MemoryStore(session);
@@ -239,6 +242,205 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(201).json({ success: true, message: "Contact message sent successfully", id: message.id });
     } catch (err) {
       handleZodError(err, res);
+    }
+  });
+
+  // Authentication Routes
+  // Register new user
+  app.post(`${apiPrefix}/auth/register`, async (req, res) => {
+    try {
+      // Parse and validate the incoming data
+      const userData = extendedInsertUserSchema.parse(req.body);
+      
+      // Check if username already exists
+      const existingUsername = await storage.getUserByUsername(userData.username);
+      if (existingUsername) {
+        return res.status(400).json({ error: "Username already taken" });
+      }
+      
+      // Check if email already exists
+      const existingEmail = await storage.getUserByEmail(userData.email);
+      if (existingEmail) {
+        return res.status(400).json({ error: "Email already in use" });
+      }
+      
+      // Ensure passwords match
+      if (userData.password !== userData.confirmPassword) {
+        return res.status(400).json({ error: "Passwords do not match" });
+      }
+      
+      // Hash the password
+      const hashedPassword = await bcrypt.hash(userData.password, 10);
+      
+      // Create user with hashed password
+      const newUser = await storage.createUser({
+        username: userData.username,
+        email: userData.email,
+        password: hashedPassword,
+        firstName: userData.firstName,
+        lastName: userData.lastName,
+        phone: userData.phone,
+        userType: userData.userType
+      });
+      
+      // Return success without the password
+      const { password, ...userWithoutPassword } = newUser;
+      res.status(201).json(userWithoutPassword);
+    } catch (err) {
+      console.error("Error registering user:", err);
+      handleZodError(err, res);
+    }
+  });
+
+  // Login user
+  app.post(`${apiPrefix}/auth/login`, async (req, res) => {
+    try {
+      const { email, password } = req.body;
+      
+      // Find user by email
+      const user = await storage.getUserByEmail(email);
+      if (!user) {
+        return res.status(401).json({ error: "Invalid email or password" });
+      }
+      
+      // Check password
+      const validPassword = await bcrypt.compare(password, user.password);
+      if (!validPassword) {
+        return res.status(401).json({ error: "Invalid email or password" });
+      }
+      
+      // Set session data
+      req.session.userId = user.id;
+      req.session.userType = user.userType;
+      req.session.username = user.username;
+      
+      // Return user data without password
+      const { password: _, ...userWithoutPassword } = user;
+      res.json(userWithoutPassword);
+    } catch (err) {
+      console.error("Error logging in:", err);
+      res.status(500).json({ error: "Login failed" });
+    }
+  });
+  
+  // Logout user
+  app.post(`${apiPrefix}/auth/logout`, (req, res) => {
+    req.session.destroy((err) => {
+      if (err) {
+        return res.status(500).json({ error: "Failed to logout" });
+      }
+      res.json({ message: "Logged out successfully" });
+    });
+  });
+  
+  // Get current user
+  app.get(`${apiPrefix}/auth/me`, isAuthenticated, async (req, res) => {
+    try {
+      const userId = req.session.userId;
+      const user = await storage.getUser(userId!);
+      
+      if (!user) {
+        req.session.destroy(() => {});
+        return res.status(404).json({ error: "User not found" });
+      }
+      
+      // Return user data without password
+      const { password, ...userWithoutPassword } = user;
+      res.json(userWithoutPassword);
+    } catch (err) {
+      console.error("Error fetching user:", err);
+      res.status(500).json({ error: "Failed to fetch user" });
+    }
+  });
+  
+  // Service provider routes
+  
+  // Get service provider profile
+  app.get(`${apiPrefix}/providers/profile`, isAuthenticated, checkUserType("provider"), async (req, res) => {
+    try {
+      const userId = req.session.userId!;
+      const provider = await storage.getServiceProviderByUserId(userId);
+      
+      if (!provider) {
+        return res.status(404).json({ error: "Service provider profile not found" });
+      }
+      
+      res.json(provider);
+    } catch (err) {
+      console.error("Error fetching provider profile:", err);
+      res.status(500).json({ error: "Failed to fetch provider profile" });
+    }
+  });
+  
+  // Create service provider profile
+  app.post(`${apiPrefix}/providers/profile`, isAuthenticated, checkUserType("provider"), async (req, res) => {
+    try {
+      const userId = req.session.userId!;
+      
+      // Check if provider already has a profile
+      const existingProvider = await storage.getServiceProviderByUserId(userId);
+      if (existingProvider) {
+        return res.status(400).json({ error: "Provider profile already exists" });
+      }
+      
+      const provider = await storage.createServiceProvider(req.body, userId);
+      res.status(201).json(provider);
+    } catch (err) {
+      console.error("Error creating provider profile:", err);
+      handleZodError(err, res);
+    }
+  });
+  
+  // Update service provider profile
+  app.patch(`${apiPrefix}/providers/profile`, isAuthenticated, checkUserType("provider"), express.json(), async (req, res) => {
+    try {
+      const userId = req.session.userId!;
+      
+      // Get provider profile
+      const provider = await storage.getServiceProviderByUserId(userId);
+      if (!provider) {
+        return res.status(404).json({ error: "Provider profile not found" });
+      }
+      
+      // Update profile
+      const updatedProvider = await storage.updateServiceProvider(provider.id, req.body);
+      res.json(updatedProvider);
+    } catch (err) {
+      console.error("Error updating provider profile:", err);
+      handleZodError(err, res);
+    }
+  });
+  
+  // Get provider bookings
+  app.get(`${apiPrefix}/providers/bookings`, isAuthenticated, checkUserType("provider"), async (req, res) => {
+    try {
+      const userId = req.session.userId!;
+      
+      // Get provider profile
+      const provider = await storage.getServiceProviderByUserId(userId);
+      if (!provider) {
+        return res.status(404).json({ error: "Provider profile not found" });
+      }
+      
+      const bookings = await storage.getBookingsByProviderId(provider.id);
+      res.json(bookings);
+    } catch (err) {
+      console.error("Error fetching provider bookings:", err);
+      res.status(500).json({ error: "Failed to fetch bookings" });
+    }
+  });
+  
+  // Client routes
+  
+  // Get client bookings
+  app.get(`${apiPrefix}/clients/bookings`, isAuthenticated, checkUserType("client"), async (req, res) => {
+    try {
+      const userId = req.session.userId!;
+      const bookings = await storage.getBookingsByClientId(userId);
+      res.json(bookings);
+    } catch (err) {
+      console.error("Error fetching client bookings:", err);
+      res.status(500).json({ error: "Failed to fetch bookings" });
     }
   });
 
