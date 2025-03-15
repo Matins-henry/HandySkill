@@ -164,7 +164,7 @@ const Footer = () => {
                 placeholder="Your email" 
                 className="flex-1 rounded-r-none bg-gray-800 border-gray-700 text-white"
               />
-              <Button variant="primary" className="rounded-l-none">
+              <Button variant="default" className="rounded-l-none bg-primary hover:bg-primary/90 text-white">
                 <Send size={16} />
               </Button>
             </form>

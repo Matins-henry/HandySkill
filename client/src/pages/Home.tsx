@@ -161,7 +161,7 @@ const Home = () => {
           {/* View All Services Button */}
           <div className="mt-12 text-center">
             <Link href="/services">
-              <Button variant="primary" className="px-8 py-6 shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300">
+              <Button variant="default" className="px-8 py-6 shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 bg-primary hover:bg-primary/90 text-white">
                 <List className="mr-2 h-5 w-5" />
                 View All Services
               </Button>
