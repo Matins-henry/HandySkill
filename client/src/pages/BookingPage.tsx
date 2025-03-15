@@ -65,7 +65,7 @@ const BookingPage = () => {
       toast({
         title: "Booking Confirmed!",
         description: "Your appointment has been scheduled successfully.",
-        variant: "success",
+        variant: "default",
       });
       form.reset();
       setBookingDate(new Date());
