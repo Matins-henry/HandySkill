@@ -1,6 +1,6 @@
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
-import { Calendar, Tool } from "lucide-react";
+import { Calendar, Wrench } from "lucide-react";
 import { motion } from "framer-motion";
 
 const HeroSection = () => {
@@ -51,7 +51,7 @@ const HeroSection = () => {
               variant="outline" 
               className="bg-white hover:bg-gray-100 text-dark border-white px-8 py-6 text-base rounded-md shadow-lg transform hover:-translate-y-1 transition-all duration-300"
             >
-              <Tool className="mr-2 h-5 w-5" />
+              <Wrench className="mr-2 h-5 w-5" />
               Explore Services
             </Button>
           </Link>

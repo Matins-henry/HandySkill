@@ -14,7 +14,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
-import { Calendar as CalendarIcon, Clock, Tools, User, Check } from "lucide-react";
+import { Calendar as CalendarIcon, Clock, Wrench, User, Check } from "lucide-react";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { insertBookingSchema } from "@shared/schema";
@@ -128,7 +128,7 @@ const BookingPage = () => {
                   {/* Service Selection */}
                   <div className="p-6 md:p-8 border-b lg:border-b-0 lg:border-r border-gray-200">
                     <h3 className="text-xl font-heading font-semibold mb-4 flex items-center">
-                      <Tools className="text-primary mr-2" />
+                      <Wrench className="text-primary mr-2" />
                       Select a Service
                     </h3>
                     
